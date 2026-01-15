@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>TODAY’S NUMBER IS…</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description" content="A pixel-art tribute to David Lynch’s TODAY’S NUMBER IS… show.">
+    <meta name="theme-color" content="#111111">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://comet-builds.github.io/todays-number-is/">
+    <meta property="og:title" content="TODAY’S NUMBER IS…">
+    <meta property="og:description" content="A pixel-art tribute to David Lynch’s TODAY’S NUMBER IS… show.">
+    <meta property="og:image" content="https://comet-builds.github.io/todays-number-is/preview.png">
+
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="TODAY’S NUMBER IS…">
+    <meta property="twitter:description" content="Ten balls. Each ball has a number.">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        body {
+            background-color: #111;
+            color: #eee;
+            font-family: 'Press Start 2P', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        #tv-container {
+            position: relative;
+            width: 90vmin;
+            height: 70vmin;
+            max-width: 800px;
+            max-height: 600px;
+            background: #000;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 
+                0 0 0 10px #333,
+                0 0 50px rgba(0,0,0,0.8);
+        }
+
+        #screen {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: #2a2a2a;
+            border-radius: 60px / 20px;
+            overflow: hidden;
+            box-shadow: inset 0 0 80px rgba(0,0,0,0.7);
+        }
+
+        #screen::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 10;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            image-rendering: pixelated;
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding-bottom: 40px;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .dialogue-box {
+            background: #000;
+            border: 4px solid #fff;
+            padding: 10px;
+            width: 80%;
+            min-height: 50px;
+            text-align: left;
+            font-size: 12px;
+            line-height: 1.8;
+            color: #fff;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        #start-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        #start-overlay h1 {
+            color: #fff;
+            text-shadow: 2px 2px #555;
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .blink {
+            animation: blinker 2.5s linear infinite; 
+            color: #aed581; 
+            margin-top: 20px;
+            cursor: pointer;
+            pointer-events: auto;
+            padding: 20px;
+        }
+
+        @keyframes blinker {
+            50% { opacity: 0; }
+        }
+
+        .options-container {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            pointer-events: auto;
+        }
+
+        .options-trigger {
+            background: #444;
+            color: #aaa;
+            border: 1px solid #555;
+            padding: 8px 12px;
+            font-family: 'Press Start 2P', sans-serif;
+            font-size: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .options-trigger:hover {
+            background: #555;
+            color: #fff;
+        }
+
+        .mode-select {
+            display: flex;
+            gap: 10px;
+            display: none;
+        }
+
+        .mode-btn {
+            background: #000;
+            color: #555;
+            border: 2px solid #555;
+            padding: 8px 12px;
+            font-family: 'Press Start 2P', sans-serif;
+            cursor: pointer;
+            font-size: 8px;
+            transition: all 0.2s;
+        }
+
+        .mode-btn:hover {
+            color: #aaa;
+            border-color: #aaa;
+        }
+
+        .mode-btn.active {
+            color: #aed581;
+            border-color: #aed581;
+            text-shadow: 0 0 5px #aed581;
+        }
+
+        @media (max-width: 600px) {
+            .dialogue-box {
+                font-size: 8px;
+                padding: 6px;
+                width: 90%;
+                min-height: 30px;
+                line-height: 1.4;
+                margin-bottom: 10px;
+                border-width: 2px;
+            }
+            #ui-layer {
+                padding-bottom: 15px;
+            }
+            #start-overlay h1 {
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+            .blink {
+                margin-top: 10px;
+                padding: 10px;
+                font-size: 12px;
+            }
+            .options-container {
+                bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div id="tv-container">
+    <div id="screen">
+        <canvas id="gameCanvas" width="320" height="240"></canvas>
+        
+        <div id="ui-layer">
+            <div id="dialogue" class="dialogue-box"></div>
+        </div>
+
+        <div id="start-overlay">
+            <h1>TODAY’S NUMBER IS…</h1>
+            
+            <div id="start-trigger" class="blink">CLICK TO START</div>
+
+            <div class="options-container">
+                <div id="mode-selector" class="mode-select">
+                    <div id="btn-det" class="mode-btn active">DETERMINISTIC</div>
+                    <div id="btn-rnd" class="mode-btn">RANDOM</div>
+                </div>
+                <div id="btn-options" class="options-trigger">OPTIONS</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    // --- Audio ---
+    let audioCtx;
+    let droneOsc;
+    let droneGain;
+    let suspendTimeout;
+
+    function initAudio() {
+        if (suspendTimeout) clearTimeout(suspendTimeout);
+
+        if (!audioCtx) {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new AudioContext();
+            
+            droneOsc = audioCtx.createOscillator();
+            droneGain = audioCtx.createGain();
+            
+            droneOsc.type = 'sawtooth';
+            droneOsc.frequency.value = 55;
+            
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 200;
+
+            droneOsc.connect(filter);
+            filter.connect(droneGain);
+            droneGain.connect(audioCtx.destination);
+            
+            droneGain.gain.value = 0.0;
+            droneOsc.start();
+            
+            droneGain.gain.setTargetAtTime(0.05, audioCtx.currentTime, 2);
+        } else {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            droneGain.gain.cancelScheduledValues(audioCtx.currentTime);
+            droneGain.gain.setTargetAtTime(0.05, audioCtx.currentTime, 2);
+        }
+    }
+
+    function playTalkSound() {
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        
+        osc.type = 'square';
+        osc.frequency.value = 100 + Math.random() * 50; 
+        
+        gain.gain.value = 0.05;
+        
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.05);
+    }
+
+    function playSwirlSound() {
+        if (!audioCtx) return;
+        const t = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        
+        osc.frequency.setValueAtTime(200 + Math.random() * 200, t);
+        osc.type = 'square';
+        
+        gain.gain.setValueAtTime(0.05, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+        
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(t);
+        osc.stop(t + 0.1);
+    }
+
+    // --- State ---
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const dialogueBox = document.getElementById('dialogue');
+    const startOverlay = document.getElementById('start-overlay');
+    const btnDet = document.getElementById('btn-det');
+    const btnRnd = document.getElementById('btn-rnd');
+    const startTrigger = document.getElementById('start-trigger');
+    const btnOptions = document.getElementById('btn-options');
+    const modeSelector = document.getElementById('mode-selector');
+
+    let gameState = 'START';
+    let winningNumber = null;
+    let shakeFrame = 0;
+    let isTyping = false;
+    let lynchFrame = 0;
+    let gameMode = 'DETERMINISTIC'; 
+    let optionsOpen = false;
+
+    const C = {
+        bg: '#2d2d2d',
+        desk: '#5d4037',
+        skin: '#ffccaa',
+        suit: '#111111',
+        shirt: '#ffffff',
+        hair: '#eeeeee',
+        tie: '#1a237e',
+        jar: '#aed581',
+        jarDark: '#424242', 
+        gold: '#ffffff'
+    };
+
+    function getDailyNumber() {
+        const d = new Date();
+        const year = d.getFullYear();
+        const month = d.getMonth() + 1;
+        const day = d.getDate();
+
+        // 1. Pack inputs into a 32-bit integer (Year + Month + Day)
+        // This ensures every date has a unique binary pattern.
+        // Bit Shift: Year moves 16 bits left, Month 8 bits left.
+        let h = (year << 16) | (month << 8) | day;
+
+        // 2. MurmurHash3 Mixer
+        // This destroys linear patterns (like day 1 vs day 2).
+        h = Math.imul(h ^ (h >>> 16), 0x85ebca6b);
+        h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35);
+        h = h ^ (h >>> 16);
+
+        // 3. Map to 1-10
+        return ((h >>> 0) % 10) + 1;
+    }
+
+    // --- Draw ---
+    function drawRect(x, y, w, h, color) {
+        ctx.fillStyle = color;
+        ctx.fillRect(Math.floor(x), Math.floor(y), Math.floor(w), Math.floor(h));
+    }
+
+    function drawPixelBall(cx, cy, color) {
+        ctx.fillStyle = color;
+        // 1. Wide/Short (30w x 18h)
+        drawRect(cx - 15, cy - 9, 30, 18, color);
+        // 2. Medium/Medium (24w x 24h)
+        drawRect(cx - 12, cy - 12, 24, 24, color);
+        // 3. Narrow/Tall (18w x 30h)
+        drawRect(cx - 9, cy - 15, 18, 30, color);
+    }
+
+    function drawBackground() {
+        drawRect(0, 0, 320, 240, '#333');
+        drawRect(0, 0, 320, 100, '#222');
+        drawRect(20, 20, 60, 80, '#1a1a1a');
+        drawRect(240, 20, 60, 80, '#1a1a1a');
+        drawRect(0, 180, 320, 60, C.desk);
+        drawRect(0, 180, 320, 5, '#3e2723');
+    }
+
+    function drawLynch(shakeOffset = 0) {
+        const cx = 160; 
+        const cy = 180; 
+
+        drawRect(cx - 30, cy - 60, 60, 65, C.suit);
+        drawRect(cx - 10, cy - 60, 20, 40, C.shirt);
+        drawRect(cx - 3, cy - 58, 6, 35, C.tie);
+
+        const headY = cy - 90;
+        drawRect(cx - 15, headY, 30, 35, C.skin);
+
+        drawRect(cx - 17, headY - 15, 10, 20, C.hair);
+        drawRect(cx - 17, headY - 15, 34, 10, C.hair);
+        drawRect(cx + 8, headY - 20, 12, 25, C.hair);
+        
+        drawRect(cx - 10, headY + 12, 6, 4, '#000');
+        drawRect(cx + 4, headY + 12, 6, 4, '#000');
+
+        if (isTyping && Math.floor(Date.now() / 100) % 2 === 0) {
+            drawRect(cx - 5, headY + 25, 10, 4, '#555'); 
+        } else {
+            drawRect(cx - 5, headY + 25, 10, 2, '#555');
+        }
+
+        if (gameState === 'EXPLAIN' || gameState === 'PICK' || gameState === 'SWIRLING') {
+            const jarWidth = 20; 
+            
+            // Center the jar hold
+            let jx = cx - (jarWidth / 2); 
+            let jy = cy - 45; 
+            let hOffX = 0;
+            let hOffY = 0;
+            
+            if (gameState === 'SWIRLING') {
+                const offX = (shakeOffset % 2 === 0) ? -2 : 2;
+                const offY = (shakeOffset % 3 === 0) ? -2 : 2;
+                jx += offX;
+                jy += offY;
+                hOffX = offX;
+                hOffY = offY;
+            }
+
+            // Arms reaching center (Moves with hands in shake)
+            drawRect(cx - 30 + hOffX/2, cy - 40 + hOffY/2, 25, 10, C.suit); 
+            drawRect(cx + 5 + hOffX/2, cy - 40 + hOffY/2, 25, 10, C.suit);
+
+            // Hands (Wrists behind jar)
+            drawRect(cx - 10 + hOffX, cy - 40 + hOffY, 8, 10, C.skin);
+            drawRect(cx + 2 + hOffX, cy - 40 + hOffY, 8, 10, C.skin);
+            
+            // Jar
+            drawRect(jx, jy, 20, 20, C.jar);
+            drawRect(jx, jy + 20, 20, 10, C.jarDark);
+
+            // Fingers wrapping around sides
+            drawRect(jx - 2, jy + 8, 4, 12, C.skin); 
+            drawRect(jx + 18, jy + 8, 4, 12, C.skin); 
+        } 
+        else if (gameState === 'REVEAL') {
+            const armX = cx + 30;
+            const armY = cy - 70;
+            
+            // Right arm holds ball up
+            drawRect(armX, armY + 20, 10, 30, C.suit);
+            drawRect(armX - 5, armY + 10, 20, 15, C.skin);
+            
+            drawPixelBall(armX + 5, armY - 5, C.gold);
+            
+            // Jar on desk (Start Position)
+            drawRect(cx + 50, cy - 25, 20, 20, C.jar);
+            drawRect(cx + 50, cy - 5, 20, 10, C.jarDark);
+            
+            ctx.fillStyle = '#000';
+            ctx.font = '16px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(winningNumber, armX + 5, armY - 5);
+        } 
+        else {
+            // Resting state
+            drawRect(cx - 40, cy - 10, 10, 10, C.skin); 
+            drawRect(cx + 30, cy - 10, 10, 10, C.skin); 
+            // Jar on desk
+            drawRect(cx + 50, cy - 25, 20, 20, C.jar);
+            drawRect(cx + 50, cy - 5, 20, 10, C.jarDark);
+        }
+    }
+
+    function drawScene() {
+        if (gameState === 'BLACK_SCREEN_1' || gameState === 'BLACK_SCREEN_2') {
+            drawRect(0, 0, 320, 240, '#000');
+            return;
+        }
+
+        if (gameState === 'TITLE_CARD') {
+            drawRect(0, 0, 320, 240, '#000');
+            ctx.fillStyle = '#fff';
+            ctx.font = '30px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText("TODAY’S", 160, 90);
+            ctx.fillText("NUMBER", 160, 130);
+            ctx.fillText("IS…", 160, 170);
+            return;
+        }
+
+        if (gameState === 'OUTRO') {
+            drawRect(0, 0, 320, 240, '#000');
+            ctx.fillStyle = '#fff';
+            ctx.font = '28px "Press Start 2P"';
+            ctx.textAlign = 'center';
+            ctx.fillText("WHAT WILL", 160, 70);
+            ctx.fillText("TOMORROW’S", 160, 110);
+            ctx.fillText("NUMBER", 160, 150);
+            ctx.fillText("BE?", 160, 190);
+            return;
+        }
+
+        drawBackground();
+        drawLynch(shakeFrame);
+    }
+
+    // --- Text ---
+    function typeText(text, callback) {
+        isTyping = true;
+        dialogueBox.style.display = 'block';
+        dialogueBox.innerHTML = '';
+        let i = 0;
+        
+        const interval = setInterval(() => {
+            if (i >= text.length) {
+                clearInterval(interval);
+                isTyping = false;
+                setTimeout(callback, 1000); 
+                return;
+            }
+
+            const char = text[i];
+            
+            if (char === '|') {
+                // pause
+            } else if (char === '^') {
+                dialogueBox.innerHTML += '<br>';
+            } else {
+                dialogueBox.innerHTML += char;
+                if (char !== ' ' && char !== '.') playTalkSound();
+            }
+            i++;
+        }, 60); 
+    }
+
+    function getFormattedDate() {
+        const options = { month: 'long', day: 'numeric', year: 'numeric' };
+        return new Date().toLocaleDateString('en-US', options).toUpperCase();
+    }
+
+    // --- Sequence ---
+    function startGame() {
+        startOverlay.style.display = 'none';
+        
+        // 1 sec Black Screen -> 3 sec Title -> Intro
+        gameState = 'BLACK_SCREEN_1';
+        setTimeout(() => {
+            gameState = 'TITLE_CARD';
+            setTimeout(() => {
+                initAudio();
+                startIntroSequence();
+            }, 3000);
+        }, 1000);
+    }
+
+    function startIntroSequence() {
+        gameState = 'INTRO';
+        const dateStr = getFormattedDate();
+        
+        setTimeout(() => {
+            typeText("HERE WE GO FOR TODAY’S NUMBER.", () => {
+                setTimeout(() => {
+                    typeText(`IT’S ${dateStr}.`, () => {
+                         setTimeout(startExplainPhase, 2000);
+                    });
+                }, 2000);
+            });
+        }, 2000);
+    }
+
+    function startExplainPhase() {
+        gameState = 'EXPLAIN';
+        setTimeout(() => {
+            typeText("TEN BALLS. EACH BALL HAS A NUMBER.|^NUMBERS ONE THROUGH TEN.", () => {
+                setTimeout(startSwirlPhase, 2000);
+            });
+        }, 500);
+    }
+
+    function startSwirlPhase() {
+        typeText("SWIRL THE NUMBERS.", () => {
+             setTimeout(() => {
+                 gameState = 'SWIRLING';
+                 let swirlTime = 0;
+                 const swirlInterval = setInterval(() => {
+                     shakeFrame++;
+                     swirlTime += 100;
+                     if (swirlTime % 150 === 0) playSwirlSound(); 
+                     
+                     if (swirlTime >= 5000) {
+                         clearInterval(swirlInterval);
+                         setTimeout(pickNumberPhase, 1500);
+                     }
+                 }, 100);
+             }, 1000);
+        });
+    }
+    
+    function pickNumberPhase() {
+        gameState = 'PICK';
+        shakeFrame = 0;
+        setTimeout(() => {
+             typeText("PICK A NUMBER.", () => {
+                 setTimeout(revealNumber, 2000);
+             });
+        }, 500);
+    }
+
+    function revealNumber() {
+        gameState = 'REVEAL';
+        
+        if (gameMode === 'DETERMINISTIC') {
+            winningNumber = getDailyNumber();
+        } else {
+            winningNumber = Math.floor(Math.random() * 10) + 1;
+        }
+        
+        setTimeout(() => {
+             typeText(`TODAY’S NUMBER IS…| ${winningNumber}!`, () => {
+                 setTimeout(() => {
+                     gameState = 'BLACK_SCREEN_2';
+                     dialogueBox.style.display = 'none';
+                     setTimeout(endGame, 1000);
+                 }, 4000);
+             });
+        }, 500);
+    }
+
+    function endGame() {
+        gameState = 'OUTRO';
+        
+        setTimeout(() => {
+            const restartHandler = () => {
+                document.removeEventListener('click', restartHandler);
+                resetGame();
+            };
+            document.addEventListener('click', restartHandler);
+        }, 2000);
+    }
+
+    function resetGame() {
+        winningNumber = null;
+        dialogueBox.style.display = 'none';
+        startOverlay.style.display = 'flex';
+        optionsOpen = false;
+        modeSelector.style.display = 'none';
+        btnOptions.innerText = "OPTIONS";
+        gameState = 'START';
+
+        if (audioCtx && droneGain) {
+            droneGain.gain.cancelScheduledValues(audioCtx.currentTime);
+            droneGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.5);
+            suspendTimeout = setTimeout(() => {
+                if (audioCtx.state === 'running') audioCtx.suspend();
+            }, 600);
+        }
+    }
+
+    // --- UI Listeners ---
+    btnOptions.addEventListener('click', (e) => {
+        e.stopPropagation();
+        optionsOpen = !optionsOpen;
+        if (optionsOpen) {
+            modeSelector.style.display = 'flex';
+            btnOptions.innerText = "CLOSE";
+        } else {
+            modeSelector.style.display = 'none';
+            btnOptions.innerText = "OPTIONS";
+        }
+    });
+
+    btnDet.addEventListener('click', (e) => {
+        e.stopPropagation();
+        gameMode = 'DETERMINISTIC';
+        btnDet.classList.add('active');
+        btnRnd.classList.remove('active');
+    });
+
+    btnRnd.addEventListener('click', (e) => {
+        e.stopPropagation();
+        gameMode = 'RANDOM';
+        btnRnd.classList.add('active');
+        btnDet.classList.remove('active');
+    });
+
+    startTrigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        startGame();
+    });
+
+    function animate() {
+        drawScene();
+        if (gameState === 'INTRO') {
+            if (Math.random() > 0.95) lynchFrame++;
+        }
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+})();
+</script>
+</body>
+</html>
