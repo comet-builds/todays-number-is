@@ -398,13 +398,32 @@
         drawRect(cx - 9, cy - 15, 18, 30, color);
     }
 
+    let bgCanvas = null;
+
+    function initBackground() {
+        bgCanvas = document.createElement('canvas');
+        bgCanvas.width = 320;
+        bgCanvas.height = 240;
+        const bgCtx = bgCanvas.getContext('2d');
+
+        function drawBgRect(x, y, w, h, color) {
+            bgCtx.fillStyle = color;
+            bgCtx.fillRect(Math.floor(x), Math.floor(y), Math.floor(w), Math.floor(h));
+        }
+
+        drawBgRect(0, 0, 320, 240, '#333');
+        drawBgRect(0, 0, 320, 100, '#222');
+        drawBgRect(20, 20, 60, 80, '#1a1a1a');
+        drawBgRect(240, 20, 60, 80, '#1a1a1a');
+        drawBgRect(0, 180, 320, 60, C.desk);
+        drawBgRect(0, 180, 320, 5, '#3e2723');
+    }
+
     function drawBackground() {
-        drawRect(0, 0, 320, 240, '#333');
-        drawRect(0, 0, 320, 100, '#222');
-        drawRect(20, 20, 60, 80, '#1a1a1a');
-        drawRect(240, 20, 60, 80, '#1a1a1a');
-        drawRect(0, 180, 320, 60, C.desk);
-        drawRect(0, 180, 320, 5, '#3e2723');
+        if (!bgCanvas) {
+            initBackground();
+        }
+        ctx.drawImage(bgCanvas, 0, 0);
     }
 
     function drawLynch(shakeOffset = 0) {
@@ -548,9 +567,9 @@
             if (char === '|') {
                 // pause
             } else if (char === '^') {
-                dialogueBox.innerHTML += '<br>';
+                dialogueBox.insertAdjacentHTML('beforeend', '<br>');
             } else {
-                dialogueBox.innerHTML += char;
+                dialogueBox.insertAdjacentHTML('beforeend', char);
                 if (char !== ' ' && char !== '.') playTalkSound();
             }
             i++;
@@ -725,5 +744,3 @@
 </script>
 </body>
 </html>
-
-
