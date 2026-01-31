@@ -266,6 +266,7 @@
     let swirlOsc;
     let swirlGain;
     let suspendTimeout;
+    let lastFillStyle = null;
 
     function initAudio() {
         if (suspendTimeout) clearTimeout(suspendTimeout);
@@ -411,12 +412,14 @@
 
     // --- Draw ---
     function drawRect(x, y, w, h, color) {
-        ctx.fillStyle = color;
+        if (lastFillStyle !== color) {
+            ctx.fillStyle = color;
+            lastFillStyle = color;
+        }
         ctx.fillRect(Math.trunc(x), Math.trunc(y), Math.trunc(w), Math.trunc(h));
     }
 
     function drawPixelBall(cx, cy, color) {
-        ctx.fillStyle = color;
         // 1. Wide/Short (30w x 18h)
         drawRect(cx - 15, cy - 9, 30, 18, color);
         // 2. Medium/Medium (24w x 24h)
@@ -526,6 +529,7 @@
             drawRect(cx + 50, cy - 5, 20, 10, C.jarDark);
 
             ctx.fillStyle = '#000';
+            lastFillStyle = '#000';
             ctx.font = '16px "Press Start 2P"';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
@@ -550,6 +554,7 @@
         if (gameState === 'TITLE_CARD') {
             drawRect(0, 0, 320, 240, '#000');
             ctx.fillStyle = '#fff';
+            lastFillStyle = '#fff';
             ctx.font = '30px "Press Start 2P"';
             ctx.textAlign = 'center';
             ctx.fillText("TODAY’S", 160, 90);
@@ -561,6 +566,7 @@
         if (gameState === 'OUTRO') {
             drawRect(0, 0, 320, 240, '#000');
             ctx.fillStyle = '#fff';
+            lastFillStyle = '#fff';
             ctx.font = '28px "Press Start 2P"';
             ctx.textAlign = 'center';
             ctx.fillText("WHAT WILL", 160, 70);
