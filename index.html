@@ -401,7 +401,7 @@
     // --- Draw ---
     function drawRect(x, y, w, h, color) {
         ctx.fillStyle = color;
-        ctx.fillRect(x | 0, y | 0, w | 0, h | 0);
+        ctx.fillRect(Math.trunc(x), Math.trunc(y), Math.trunc(w), Math.trunc(h));
     }
 
     function drawPixelBall(cx, cy, color) {
@@ -424,7 +424,7 @@
 
         function drawBgRect(x, y, w, h, color) {
             bgCtx.fillStyle = color;
-            bgCtx.fillRect(x | 0, y | 0, w | 0, h | 0);
+            bgCtx.fillRect(Math.trunc(x), Math.trunc(y), Math.trunc(w), Math.trunc(h));
         }
 
         drawBgRect(0, 0, 320, 240, '#333');
@@ -766,4 +766,5 @@
 </script>
 </body>
 </html>
+
 
