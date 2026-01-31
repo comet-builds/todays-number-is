@@ -263,6 +263,8 @@
     let droneGain;
     let talkOsc;
     let talkGain;
+    let swirlOsc;
+    let swirlGain;
     let suspendTimeout;
 
     function initAudio() {
@@ -301,6 +303,17 @@
             talkOsc.connect(talkGain);
             talkGain.connect(audioCtx.destination);
             talkOsc.start();
+
+            // Reusable swirl nodes
+            swirlOsc = audioCtx.createOscillator();
+            swirlGain = audioCtx.createGain();
+
+            swirlOsc.type = 'square';
+            swirlGain.gain.value = 0;
+
+            swirlOsc.connect(swirlGain);
+            swirlGain.connect(audioCtx.destination);
+            swirlOsc.start();
         } else {
             if (audioCtx.state === 'suspended') {
                 audioCtx.resume();
@@ -311,6 +324,10 @@
             if (talkGain) {
                 talkGain.gain.cancelScheduledValues(audioCtx.currentTime);
                 talkGain.gain.setValueAtTime(0, audioCtx.currentTime);
+            }
+            if (swirlGain) {
+                swirlGain.gain.cancelScheduledValues(audioCtx.currentTime);
+                swirlGain.gain.setValueAtTime(0, audioCtx.currentTime);
             }
         }
     }
@@ -328,21 +345,15 @@
     }
 
     function playSwirlSound() {
-        if (!audioCtx) return;
+        if (!audioCtx || !swirlOsc || !swirlGain) return;
         const t = audioCtx.currentTime;
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
 
-        osc.frequency.setValueAtTime(200 + Math.random() * 200, t);
-        osc.type = 'square';
-
-        gain.gain.setValueAtTime(0.05, t);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
-
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(t);
-        osc.stop(t + 0.1);
+        swirlOsc.frequency.setValueAtTime(200 + Math.random() * 200, t);
+        
+        swirlGain.gain.cancelScheduledValues(t);
+        swirlGain.gain.setValueAtTime(0.05, t);
+        swirlGain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+        swirlGain.gain.setValueAtTime(0, t + 0.1);
     }
 
     // --- State ---
@@ -714,10 +725,15 @@
             }, 600);
         }
 
-        // Ensure talk is silent
+        // Ensure SFX are silent
         if (audioCtx && talkGain) {
             talkGain.gain.cancelScheduledValues(audioCtx.currentTime);
             talkGain.gain.setValueAtTime(0, audioCtx.currentTime);
+        }
+
+        if (audioCtx && swirlGain) {
+            swirlGain.gain.cancelScheduledValues(audioCtx.currentTime);
+            swirlGain.gain.setValueAtTime(0, audioCtx.currentTime);
         }
     }
 
@@ -766,5 +782,3 @@
 </script>
 </body>
 </html>
-
-
