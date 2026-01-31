@@ -289,7 +289,7 @@
             filter.connect(droneGain);
             droneGain.connect(audioCtx.destination);
 
-            droneGain.gain.value = 0.0;
+            droneGain.gain.value = 0;
             droneOsc.start();
 
             droneGain.gain.setTargetAtTime(0.05, audioCtx.currentTime, 2);
@@ -788,4 +788,5 @@
 </script>
 </body>
 </html>
+
 
