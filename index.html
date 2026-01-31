@@ -442,7 +442,7 @@
         ctx.drawImage(bgCanvas, 0, 0);
     }
 
-    function drawLynch(shakeOffset = 0) {
+    function drawLynch(timestamp, shakeOffset = 0) {
         const cx = 160;
         const cy = 180;
 
@@ -460,7 +460,7 @@
         drawRect(cx - 10, headY + 12, 6, 4, '#000');
         drawRect(cx + 4, headY + 12, 6, 4, '#000');
 
-        if (isTyping && Math.floor(Date.now() / 100) % 2 === 0) {
+        if (isTyping && Math.floor(timestamp / 100) % 2 === 0) {
             drawRect(cx - 5, headY + 25, 10, 4, '#555');
         } else {
             drawRect(cx - 5, headY + 25, 10, 2, '#555');
@@ -530,7 +530,7 @@
         }
     }
 
-    function drawScene() {
+    function drawScene(timestamp) {
         if (gameState === 'BLACK_SCREEN_1' || gameState === 'BLACK_SCREEN_2') {
             drawRect(0, 0, 320, 240, '#000');
             return;
@@ -560,7 +560,7 @@
         }
 
         drawBackground();
-        drawLynch(shakeFrame);
+        drawLynch(timestamp, shakeFrame);
     }
 
     // --- Text ---
@@ -753,17 +753,16 @@
         startGame();
     });
 
-    function animate() {
-        drawScene();
+    function animate(timestamp) {
+        drawScene(timestamp);
         if (gameState === 'INTRO') {
             if (Math.random() > 0.95) lynchFrame++;
         }
         requestAnimationFrame(animate);
     }
 
-    animate();
+    animate(performance.now());
 })();
 </script>
 </body>
 </html>
-
