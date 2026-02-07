@@ -610,9 +610,9 @@
             if (char === '|') {
                 // pause
             } else if (char === '^') {
-                dialogueBox.insertAdjacentHTML('beforeend', '<br>');
+                dialogueBox.appendChild(document.createElement('br'));
             } else {
-                dialogueBox.insertAdjacentHTML('beforeend', char);
+                dialogueBox.appendChild(document.createTextNode(char));
                 if (char !== ' ' && char !== '.') playTalkSound();
             }
             i++;
