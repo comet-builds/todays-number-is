@@ -350,7 +350,7 @@
         const t = audioCtx.currentTime;
 
         swirlOsc.frequency.setValueAtTime(200 + Math.random() * 200, t);
-        
+
         swirlGain.gain.cancelScheduledValues(t);
         swirlGain.gain.setValueAtTime(0.05, t);
         swirlGain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
@@ -375,6 +375,14 @@
     let lynchFrame = 0;
     let gameMode = 'DETERMINISTIC';
     let optionsOpen = false;
+    let isLooping = false;
+
+    function startLoop() {
+        if (!isLooping) {
+            isLooping = true;
+            requestAnimationFrame(animate);
+        }
+    }
 
     const C = {
         bg: '#2d2d2d',
@@ -583,6 +591,7 @@
 
     // --- Text ---
     function typeText(text, callback) {
+        startLoop();
         isTyping = true;
         dialogueBox.style.display = 'block';
         dialogueBox.innerHTML = '';
@@ -621,8 +630,10 @@
 
         // 1 sec Black Screen -> 3 sec Title -> Intro
         gameState = 'BLACK_SCREEN_1';
+        startLoop();
         setTimeout(() => {
             gameState = 'TITLE_CARD';
+            startLoop();
             setTimeout(() => {
                 initAudio();
                 startIntroSequence();
@@ -632,6 +643,7 @@
 
     function startIntroSequence() {
         gameState = 'INTRO';
+        startLoop();
         const dateStr = getFormattedDate();
 
         setTimeout(() => {
@@ -647,6 +659,7 @@
 
     function startExplainPhase() {
         gameState = 'EXPLAIN';
+        startLoop();
         setTimeout(() => {
             typeText("TEN BALLS. EACH BALL HAS A NUMBER.|^NUMBERS ONE THROUGH TEN.", () => {
                 setTimeout(startSwirlPhase, 2000);
@@ -658,6 +671,7 @@
         typeText("SWIRL THE NUMBERS.", () => {
              setTimeout(() => {
                  gameState = 'SWIRLING';
+                 startLoop();
                  let swirlTime = 0;
                  const swirlInterval = setInterval(() => {
                      shakeFrame++;
@@ -675,6 +689,7 @@
 
     function pickNumberPhase() {
         gameState = 'PICK';
+        startLoop();
         shakeFrame = 0;
         setTimeout(() => {
              typeText("PICK A NUMBER.", () => {
@@ -685,6 +700,7 @@
 
     function revealNumber() {
         gameState = 'REVEAL';
+        startLoop();
 
         if (gameMode === 'DETERMINISTIC') {
             winningNumber = getDailyNumber();
@@ -696,6 +712,7 @@
              typeText(`TODAY’S NUMBER IS…| ${winningNumber}!`, () => {
                  setTimeout(() => {
                      gameState = 'BLACK_SCREEN_2';
+                     startLoop();
                      dialogueBox.style.display = 'none';
                      setTimeout(endGame, 1000);
                  }, 4000);
@@ -705,6 +722,7 @@
 
     function endGame() {
         gameState = 'OUTRO';
+        startLoop();
 
         setTimeout(() => {
             const restartHandler = () => {
@@ -723,6 +741,7 @@
         modeSelector.style.display = 'none';
         btnOptions.innerText = "OPTIONS";
         gameState = 'START';
+        startLoop();
 
         if (audioCtx && droneGain) {
             droneGain.gain.cancelScheduledValues(audioCtx.currentTime);
@@ -781,13 +800,15 @@
         if (gameState === 'INTRO') {
             if (Math.random() > 0.95) lynchFrame++;
         }
-        requestAnimationFrame(animate);
+        if (isTyping || gameState === 'SWIRLING') {
+            requestAnimationFrame(animate);
+        } else {
+            isLooping = false;
+        }
     }
 
-    animate(performance.now());
+    startLoop();
 })();
 </script>
 </body>
 </html>
-
-
