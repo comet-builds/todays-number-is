@@ -465,23 +465,47 @@
         ctx.drawImage(bgCanvas, 0, 0);
     }
 
-    function drawLynch(timestamp, shakeOffset = 0) {
+    let lynchCanvas = null;
+
+    function initLynchCache() {
+        lynchCanvas = document.createElement('canvas');
+        lynchCanvas.width = 320;
+        lynchCanvas.height = 240;
+        const lCtx = lynchCanvas.getContext('2d');
+
+        function drawLRect(x, y, w, h, color) {
+            lCtx.fillStyle = color;
+            lCtx.fillRect(Math.trunc(x), Math.trunc(y), Math.trunc(w), Math.trunc(h));
+        }
+
         const cx = 160;
         const cy = 180;
 
-        drawRect(cx - 30, cy - 60, 60, 65, C.suit);
-        drawRect(cx - 10, cy - 60, 20, 40, C.shirt);
-        drawRect(cx - 3, cy - 58, 6, 35, C.tie);
+        // Static parts
+        drawLRect(cx - 30, cy - 60, 60, 65, C.suit);
+        drawLRect(cx - 10, cy - 60, 20, 40, C.shirt);
+        drawLRect(cx - 3, cy - 58, 6, 35, C.tie);
 
         const headY = cy - 90;
-        drawRect(cx - 15, headY, 30, 35, C.skin);
+        drawLRect(cx - 15, headY, 30, 35, C.skin);
 
-        drawRect(cx - 17, headY - 15, 10, 20, C.hair);
-        drawRect(cx - 17, headY - 15, 34, 10, C.hair);
-        drawRect(cx + 8, headY - 20, 12, 25, C.hair);
+        drawLRect(cx - 17, headY - 15, 10, 20, C.hair);
+        drawLRect(cx - 17, headY - 15, 34, 10, C.hair);
+        drawLRect(cx + 8, headY - 20, 12, 25, C.hair);
 
-        drawRect(cx - 10, headY + 12, 6, 4, '#000');
-        drawRect(cx + 4, headY + 12, 6, 4, '#000');
+        drawLRect(cx - 10, headY + 12, 6, 4, '#000');
+        drawLRect(cx + 4, headY + 12, 6, 4, '#000');
+    }
+
+    function drawLynch(timestamp, shakeOffset = 0) {
+        if (!lynchCanvas) {
+            initLynchCache();
+        }
+        ctx.drawImage(lynchCanvas, 0, 0);
+
+        const cx = 160;
+        const cy = 180;
+        const headY = cy - 90;
 
         if (isTyping && Math.floor(timestamp / 100) % 2 === 0) {
             drawRect(cx - 5, headY + 25, 10, 4, '#555');
