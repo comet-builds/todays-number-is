@@ -411,12 +411,13 @@
     }
 
     // --- Draw ---
+    const trunc = Math.trunc;
     function drawRect(x, y, w, h, color) {
         if (lastFillStyle !== color) {
             ctx.fillStyle = color;
             lastFillStyle = color;
         }
-        ctx.fillRect(Math.trunc(x), Math.trunc(y), Math.trunc(w), Math.trunc(h));
+        ctx.fillRect(trunc(x), trunc(y), trunc(w), trunc(h));
     }
 
     function drawPixelBall(cx, cy, color) {
