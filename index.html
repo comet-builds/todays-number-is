@@ -459,7 +459,6 @@
         drawBgRect(0, 180, 320, 60, C.desk);
         drawBgRect(0, 180, 320, 5, '#3e2723');
 
-        // Draw static character parts into background
         const cx = 160;
         const cy = 180;
 
@@ -635,7 +634,6 @@
     function startGame() {
         startOverlay.style.display = 'none';
 
-        // 1 sec Black Screen -> 3 sec Title -> Intro
         gameState = 'BLACK_SCREEN_1';
         startLoop();
         setTimeout(() => {
