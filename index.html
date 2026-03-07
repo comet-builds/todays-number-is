@@ -271,6 +271,37 @@
     let swirlGain;
     let suspendTimeout;
     let lastFillStyle = null;
+    let lastFont = null;
+    let lastTextAlign = null;
+    let lastTextBaseline = null;
+
+    function setFillStyle(color) {
+        if (lastFillStyle !== color) {
+            ctx.fillStyle = color;
+            lastFillStyle = color;
+        }
+    }
+
+    function setFont(font) {
+        if (lastFont !== font) {
+            ctx.font = font;
+            lastFont = font;
+        }
+    }
+
+    function setTextAlign(align) {
+        if (lastTextAlign !== align) {
+            ctx.textAlign = align;
+            lastTextAlign = align;
+        }
+    }
+
+    function setTextBaseline(baseline) {
+        if (lastTextBaseline !== baseline) {
+            ctx.textBaseline = baseline;
+            lastTextBaseline = baseline;
+        }
+    }
 
     function initAudio() {
         if (suspendTimeout) clearTimeout(suspendTimeout);
@@ -423,10 +454,7 @@
 
     // --- Draw ---
     function drawRect(x, y, w, h, color) {
-        if (lastFillStyle !== color) {
-            ctx.fillStyle = color;
-            lastFillStyle = color;
-        }
+        setFillStyle(color);
         ctx.fillRect(x, y, w, h);
     }
 
@@ -543,11 +571,10 @@
             drawRect(cx + 50, cy - 25, 20, 20, C.jar);
             drawRect(cx + 50, cy - 5, 20, 10, C.jarDark);
 
-            ctx.fillStyle = '#000';
-            lastFillStyle = '#000';
-            ctx.font = '16px "Press Start 2P"';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
+            setFillStyle('#000');
+            setFont('16px "Press Start 2P"');
+            setTextAlign('center');
+            setTextBaseline('middle');
             ctx.fillText(winningNumber, armX + 5, armY - 5);
         }
         else {
@@ -568,10 +595,9 @@
 
         if (gameState === 'TITLE_CARD') {
             drawRect(0, 0, 320, 240, '#000');
-            ctx.fillStyle = '#fff';
-            lastFillStyle = '#fff';
-            ctx.font = '30px "Press Start 2P"';
-            ctx.textAlign = 'center';
+            setFillStyle('#fff');
+            setFont('30px "Press Start 2P"');
+            setTextAlign('center');
             ctx.fillText("TODAY’S", 160, 90);
             ctx.fillText("NUMBER", 160, 130);
             ctx.fillText("IS…", 160, 170);
@@ -580,10 +606,9 @@
 
         if (gameState === 'OUTRO') {
             drawRect(0, 0, 320, 240, '#000');
-            ctx.fillStyle = '#fff';
-            lastFillStyle = '#fff';
-            ctx.font = '28px "Press Start 2P"';
-            ctx.textAlign = 'center';
+            setFillStyle('#fff');
+            setFont('28px "Press Start 2P"');
+            setTextAlign('center');
             ctx.fillText("WHAT WILL", 160, 70);
             ctx.fillText("TOMORROW’S", 160, 110);
             ctx.fillText("NUMBER", 160, 150);
