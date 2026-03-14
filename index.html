@@ -627,6 +627,7 @@
         dialogueBox.style.display = 'block';
         dialogueBox.innerHTML = '';
         let i = 0;
+        let currentTextNode = null;
 
         const interval = setInterval(() => {
             if (i >= text.length) {
@@ -642,8 +643,14 @@
                 // pause
             } else if (char === '^') {
                 dialogueBox.appendChild(document.createElement('br'));
+                currentTextNode = null;
             } else {
-                dialogueBox.appendChild(document.createTextNode(char));
+                if (!currentTextNode) {
+                    currentTextNode = document.createTextNode(char);
+                    dialogueBox.appendChild(currentTextNode);
+                } else {
+                    currentTextNode.nodeValue += char;
+                }
                 if (char !== ' ' && char !== '.') playTalkSound();
             }
             i++;
