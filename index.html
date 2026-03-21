@@ -817,25 +817,30 @@
         startGame();
     });
 
+    function updateTyping(timestamp) {
+        if (typingIndex >= typingText.length) {
+            isTyping = false;
+            setTimeout(typingCallback, 1000);
+            return;
+        }
+
+        const char = typingText[typingIndex];
+        if (char === '|') {
+            // pause
+        } else if (char === '^') {
+            typingBuffer += "\n";
+        } else {
+            typingBuffer += char;
+            if (char !== ' ' && char !== '.') playTalkSound();
+        }
+        dialogueBox.textContent = typingBuffer;
+        typingIndex++;
+        typingNextTime = timestamp + 60;
+    }
+
     function animate(timestamp) {
         if (isTyping && timestamp >= typingNextTime) {
-            if (typingIndex >= typingText.length) {
-                isTyping = false;
-                setTimeout(typingCallback, 1000);
-            } else {
-                const char = typingText[typingIndex];
-                if (char === '|') {
-                    // pause
-                } else if (char === '^') {
-                    typingBuffer += "\n";
-                } else {
-                    typingBuffer += char;
-                    if (char !== ' ' && char !== '.') playTalkSound();
-                }
-                dialogueBox.textContent = typingBuffer;
-                typingIndex++;
-                typingNextTime = timestamp + 60;
-            }
+            updateTyping(timestamp);
         }
 
         drawScene(timestamp);
