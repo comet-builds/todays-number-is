@@ -111,6 +111,8 @@
             color: #fff;
             margin-bottom: 20px;
             display: none;
+            white-space: pre-wrap;
+            overflow-wrap: break-word;
         }
 
         #start-overlay {
@@ -260,6 +262,12 @@
 <script>
 (function() {
     'use strict';
+
+    let typingText = "";
+    let typingCallback = null;
+    let typingIndex = 0;
+    let typingNextTime = 0;
+    let typingBuffer = "";
 
     // --- Audio ---
     let audioCtx;
@@ -625,36 +633,13 @@
         startLoop();
         isTyping = true;
         dialogueBox.style.display = 'block';
-        dialogueBox.innerHTML = '';
-        let i = 0;
-        let currentTextNode = null;
+        dialogueBox.textContent = '';
 
-        const interval = setInterval(() => {
-            if (i >= text.length) {
-                clearInterval(interval);
-                isTyping = false;
-                setTimeout(callback, 1000);
-                return;
-            }
-
-            const char = text[i];
-
-            if (char === '|') {
-                // pause
-            } else if (char === '^') {
-                dialogueBox.appendChild(document.createElement('br'));
-                currentTextNode = null;
-            } else {
-                if (currentTextNode) {
-                    currentTextNode.nodeValue += char;
-                } else {
-                    currentTextNode = document.createTextNode(char);
-                    dialogueBox.appendChild(currentTextNode);
-                }
-                if (char !== ' ' && char !== '.') playTalkSound();
-            }
-            i++;
-        }, 60);
+        typingText = text;
+        typingCallback = callback;
+        typingIndex = 0;
+        typingNextTime = 0;
+        typingBuffer = "";
     }
 
     function getFormattedDate() {
@@ -833,6 +818,26 @@
     });
 
     function animate(timestamp) {
+        if (isTyping && timestamp >= typingNextTime) {
+            if (typingIndex >= typingText.length) {
+                isTyping = false;
+                setTimeout(typingCallback, 1000);
+            } else {
+                const char = typingText[typingIndex];
+                if (char === '|') {
+                    // pause
+                } else if (char === '^') {
+                    typingBuffer += "\n";
+                } else {
+                    typingBuffer += char;
+                    if (char !== ' ' && char !== '.') playTalkSound();
+                }
+                dialogueBox.textContent = typingBuffer;
+                typingIndex++;
+                typingNextTime = timestamp + 60;
+            }
+        }
+
         drawScene(timestamp);
         if (isTyping || gameState === 'SWIRLING') {
             requestAnimationFrame(animate);
