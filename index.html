@@ -642,9 +642,10 @@
         typingBuffer = "";
     }
 
+    const dateFormatter = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
     function getFormattedDate() {
-        const options = { month: 'long', day: 'numeric', year: 'numeric' };
-        return new Date().toLocaleDateString('en-US', options).toUpperCase();
+        return dateFormatter.format(new Date()).toUpperCase();
     }
 
     // --- Sequence ---
