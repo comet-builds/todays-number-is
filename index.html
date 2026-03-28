@@ -481,7 +481,7 @@
         bgCanvas = document.createElement('canvas');
         bgCanvas.width = 320;
         bgCanvas.height = 240;
-        const bgCtx = bgCanvas.getContext('2d');
+        const bgCtx = bgCanvas.getContext('2d', { alpha: false });
 
         function drawBgRect(x, y, w, h, color) {
             bgCtx.fillStyle = color;
